@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>VELOZI — Panel de Contabilidad (demo)</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;--surface:#1a1d27;--surface2:#20243a;
+  --border:#2a2d3a;--purple:#7c5cfc;--purple-l:#a08fff;
+  --green:#22c55e;--red:#ef4444;--amber:#f59e0b;--blue:#3b82f6;
+  --orange:#f97316;--text:#e2e8f0;--muted:#64748b;--radius:10px;
+}
+body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;font-size:14px;line-height:1.6;min-height:100vh}
+
+/* ── LOGIN ── */
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1rem}
+.login-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2.5rem;width:100%;max-width:380px;text-align:center}
+.login-logo{font-size:2rem;font-weight:800;color:var(--purple-l);letter-spacing:.05em;margin-bottom:.3rem}
+.login-sub{font-size:.82rem;color:var(--muted);margin-bottom:2rem}
+.login-box input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:.75rem 1rem;border-radius:8px;font-size:.9rem;font-family:inherit;margin-bottom:.8rem;outline:none;transition:border-color .2s}
+.login-box input:focus{border-color:var(--purple)}
+.login-box button{width:100%;background:var(--purple);color:white;border:none;padding:.8rem;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer;transition:opacity .2s}
+.login-box button:hover{opacity:.85}
+.login-err{color:var(--red);font-size:.8rem;margin-top:.5rem;min-height:1.2rem}
+
+/* ── APP ── */
+#app{display:none}
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 2rem;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.brand{font-size:1.1rem;font-weight:800;color:var(--purple-l);letter-spacing:.05em}
+.nav-right{display:flex;align-items:center;gap:.8rem}
+.nav-sync-btn{background:rgba(124,92,252,.15);color:var(--purple-l);border:1px solid rgba(124,92,252,.3);padding:.35rem .9rem;border-radius:6px;cursor:pointer;font-size:.78rem;font-weight:600;transition:all .2s}
+.nav-sync-btn:hover{background:rgba(124,92,252,.3)}
+.nav-export-btn{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.2);padding:.35rem .9rem;border-radius:6px;cursor:pointer;font-size:.78rem;font-weight:600;transition:all .2s}
+.nav-export-btn:hover{background:rgba(34,197,94,.2)}
+.logout-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:.35rem .9rem;border-radius:6px;cursor:pointer;font-size:.78rem;transition:all .2s}
+.logout-btn:hover{border-color:var(--red);color:var(--red)}
+.sync-status{font-size:.75rem;color:var(--muted)}
+
+main{padding:2rem;max-width:1400px;margin:0 auto}
+
+/* ── STATS ── */
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:1rem;margin-bottom:2rem}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.2rem 1.4rem}
+.stat-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem}
+.stat-value{font-size:1.8rem;font-weight:700;line-height:1}
+.stat-sub{font-size:.72rem;color:var(--muted);margin-top:.25rem}
+.c-purple{color:var(--purple-l)}.c-green{color:var(--green)}.c-amber{color:var(--amber)}.c-red{color:var(--red)}.c-blue{color:var(--blue)}
+
+/* ── TABS ── */
+.tabs-row{display:flex;gap:.4rem;margin-bottom:1.2rem;flex-wrap:wrap;align-items:center}
+.tab{background:none;border:1px solid var(--border);color:var(--muted);padding:.4rem 1rem;border-radius:20px;cursor:pointer;font-size:.8rem;font-weight:600;transition:all .2s;display:flex;align-items:center;gap:.4rem}
+.tab:hover,.tab.on{border-color:var(--purple);color:var(--purple-l);background:rgba(124,92,252,.1)}
+.tab .count{background:rgba(124,92,252,.2);color:var(--purple-l);border-radius:10px;padding:.05rem .4rem;font-size:.7rem}
+.tab.on .count{background:var(--purple);color:white}
+.tab.t-green:hover,.tab.t-green.on{border-color:var(--green);color:var(--green);background:rgba(34,197,94,.08)}
+.tab.t-green .count,.tab.t-green.on .count{background:var(--green);color:white}
+.tab.t-red:hover,.tab.t-red.on{border-color:var(--red);color:var(--red);background:rgba(239,68,68,.08)}
+.tab.t-red .count,.tab.t-red.on .count{background:var(--red);color:white}
+.tab.t-orange:hover,.tab.t-orange.on{border-color:var(--orange);color:var(--orange);background:rgba(249,115,22,.08)}
+.tab.t-orange .count,.tab.t-orange.on .count{background:var(--orange);color:white}
+.tab.t-blue:hover,.tab.t-blue.on{border-color:var(--blue);color:var(--blue);background:rgba(59,130,246,.08)}
+.tab.t-blue .count,.tab.t-blue.on .count{background:var(--blue);color:white}
+.search-box{margin-left:auto;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:.4rem .9rem;border-radius:20px;font-size:.8rem;font-family:inherit;outline:none;width:220px;transition:border-color .2s}
+.search-box:focus{border-color:var(--purple)}
+
+/* ── LAYOUT ── */
+.grid-main{display:grid;grid-template-columns:1fr 340px;gap:1.5rem}
+
+/* ── TABLE ── */
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.table-header{padding:.9rem 1.2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.table-header span{font-size:.72rem;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;font-weight:600}
+.row-count{color:var(--purple-l);font-weight:700}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:.6rem 1rem;font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:.75rem 1rem;border-bottom:1px solid var(--border);vertical-align:middle}
+tr.data-row:last-child td{border-bottom:none}
+tr.data-row{cursor:pointer;transition:background .12s}
+tr.data-row:hover{background:rgba(124,92,252,.06)}
+tr.data-row.selected{background:rgba(124,92,252,.12)}
+.empty{text-align:center;color:var(--muted);padding:3rem;font-size:.88rem}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;gap:.25rem;padding:.18rem .6rem;border-radius:20px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+.b-pendiente {background:rgba(100,116,139,.18);color:#94a3b8}
+.b-subido    {background:rgba(59,130,246,.15);color:var(--blue)}
+.b-nuevo     {background:rgba(100,116,139,.18);color:#94a3b8}
+.b-enviado   {background:rgba(34,197,94,.1);color:var(--green)}
+.b-novedad   {background:rgba(249,115,22,.15);color:var(--orange)}
+.b-cancelado {background:rgba(239,68,68,.12);color:var(--red)}
+.b-retenido  {background:rgba(249,115,22,.12);color:var(--orange)}
+.b-entregado {background:rgba(34,197,94,.15);color:var(--green)}
+.b-devolucion{background:rgba(239,68,68,.12);color:var(--red)}
+
+/* ── SIDEBAR ── */
+.sidebar{display:flex;flex-direction:column;gap:1rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.2rem}
+.card-title{font-size:.7rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem}
+
+/* Detail */
+.detail-empty{color:var(--muted);font-size:.84rem;text-align:center;padding:1rem 0}
+.drow{display:flex;justify-content:space-between;align-items:flex-start;padding:.35rem 0;border-bottom:1px solid var(--border);font-size:.82rem}
+.drow:last-child{border:none}
+.dkey{color:var(--muted);flex-shrink:0;padding-right:.5rem}
+.dval{font-weight:500;text-align:right;word-break:break-word;max-width:200px}
+.items-list{margin-top:.3rem}
+.item-row{display:flex;justify-content:space-between;font-size:.78rem;padding:.25rem 0;border-bottom:1px solid var(--border)}
+.item-row:last-child{border:none}
+
+/* Status change */
+.status-btns{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-top:.8rem}
+.s-btn{border:1px solid var(--border);background:none;color:var(--muted);padding:.4rem;border-radius:6px;cursor:pointer;font-size:.72rem;font-weight:600;transition:all .15s}
+.s-btn:hover{border-color:var(--purple-l);color:var(--purple-l)}
+.s-btn.active-s{background:var(--purple);border-color:var(--purple);color:white}
+
+/* Distribution bars */
+.dist-row{display:flex;align-items:center;gap:.6rem;padding:.35rem 0}
+.dist-label{font-size:.75rem;min-width:80px;color:var(--text)}
+.dist-bar-bg{flex:1;height:5px;background:var(--border);border-radius:3px}
+.dist-bar{height:100%;border-radius:3px;transition:width .5s ease}
+.dist-n{font-size:.75rem;color:var(--muted);min-width:24px;text-align:right}
+
+/* Mastershop sync card */
+.ms-card .card-title{color:var(--purple-l)}
+.ms-note{font-size:.75rem;color:var(--muted);line-height:1.5;margin-bottom:.8rem}
+.ms-btn{width:100%;background:var(--purple);color:white;border:none;padding:.65rem;border-radius:7px;font-weight:700;font-size:.82rem;cursor:pointer;transition:opacity .2s}
+.ms-btn:hover{opacity:.85}
+.ms-result{font-size:.75rem;margin-top:.6rem;text-align:center;min-height:1.1rem;color:var(--muted)}
+
+/* Toast */
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(80px);background:#1a1d27;color:white;border:1px solid var(--border);border-left:3px solid var(--purple);padding:.6rem 1.2rem;border-radius:8px;font-size:.82rem;z-index:999;opacity:0;transition:all .3s;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media(max-width:900px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .grid-main{grid-template-columns:1fr}
+  .sidebar{display:none}
+}
+@media(max-width:600px){
+  .stats{grid-template-columns:1fr 1fr}
+  main{padding:1rem}
+  nav{padding:0 1rem}
+}
+
+/* ── Carga masiva Mastershop ── */
+.select-col{width:42px;text-align:center}
+.bulk-bar{position:fixed;bottom:1.2rem;left:50%;transform:translateX(-50%);background:#1a1d27;border:1px solid #7c5cfc;border-radius:14px;padding:.8rem 1.2rem;display:none;z-index:200;gap:.9rem;align-items:center;box-shadow:0 14px 38px rgba(0,0,0,.55)}
+.bulk-bar.on{display:flex}
+.bulk-bar .count-b{color:#a08fff;font-weight:700;font-size:.9rem}
+.bulk-bar .gen-b{background:#22c55e;color:#0f1117;border:0;padding:.55rem 1rem;border-radius:8px;font-weight:700;cursor:pointer;font-size:.85rem}
+.bulk-bar .gen-b:hover{filter:brightness(1.1)}
+.bulk-bar .close-b{background:transparent;border:1px solid #64748b;color:#94a3b8;padding:.45rem .7rem;border-radius:6px;cursor:pointer}
+.nav-bulk-btn{background:#22c55e;color:#0f1117;border:0;padding:.5rem .9rem;border-radius:8px;font-weight:700;cursor:pointer;font-size:.82rem}
+.nav-bulk-btn:hover{filter:brightness(1.1)}
+input[type="checkbox"].row-sel{width:18px;height:18px;cursor:pointer;accent-color:#7c5cfc}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+<div style="background:#f59e0b;color:#1a1d27;text-align:center;font:600 12px system-ui;padding:6px 10px">DEMO con datos ficticios · réplica del panel real de Velozi · las conexiones a Mastershop están simuladas</div>
+
+<!-- ── LOGIN ─────────────────────────────────────────── -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">VELOZI</div>
+    <div class="login-sub">Panel de Contabilidad · Acceso privado</div>
+    <input type="password" id="pwd-input" placeholder="Contraseña" onkeydown="if(event.key==='Enter')doLogin()"/>
+    <button onclick="doLogin()">Ingresar al panel</button>
+    <div class="login-err" id="login-err"></div>
+  </div>
+</div>
+
+<!-- ── APP ───────────────────────────────────────────── -->
+<div id="app">
+
+<nav>
+  <span class="brand">⚡ VELOZI · Contabilidad</span>
+  <div class="nav-right">
+    <span class="sync-status" id="sync-status"></span>
+    <button class="nav-sync-btn" onclick="syncMastershop()">↻ Sync Mastershop</button>
+    <button class="nav-bulk-btn" onclick="openBulkAll()" title="Marcar todos los pendientes para Excel">📊 Carga Masiva</button>
+    <button class="nav-export-btn" onclick="exportCSV()">↓ Exportar CSV</button>
+    <button class="logout-btn" onclick="logout()">Salir</button>
+  </div>
+</nav>
+
+<main>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-label">Total pedidos</div>
+      <div class="stat-value c-purple" id="s-total">0</div>
+      <div class="stat-sub" id="s-hoy">— hoy</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Ingresos brutos</div>
+      <div class="stat-value c-green" id="s-revenue">$0</div>
+      <div class="stat-sub">Total contraentrega</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Pendientes</div>
+      <div class="stat-value c-purple" id="s-pendiente">0</div>
+      <div class="stat-sub">Sin subir a Mastershop</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Enviados</div>
+      <div class="stat-value c-green" id="s-enviado">0</div>
+      <div class="stat-sub">En camino</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Cancelados / Retenidos</div>
+      <div class="stat-value c-red" id="s-problemas">0</div>
+      <div class="stat-sub">Requieren atención</div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs-row">
+    <button class="tab on"       data-filter="todos"     onclick="setTab(this)">Todos          <span class="count" id="cnt-todos">0</span></button>
+    <button class="tab"          data-filter="pendiente" onclick="setTab(this)">⏳ Pendientes  <span class="count" id="cnt-pendiente">0</span></button>
+    <button class="tab t-blue"   data-filter="subido"    onclick="setTab(this)">☁ Subidos      <span class="count" id="cnt-subido">0</span></button>
+    <button class="tab t-green"  data-filter="enviado"   onclick="setTab(this)">✈ Enviados     <span class="count" id="cnt-enviado">0</span></button>
+    <button class="tab t-orange" data-filter="novedad"   onclick="setTab(this)">⚠ Novedades   <span class="count" id="cnt-novedad">0</span></button>
+    <button class="tab t-red"    data-filter="cancelado" onclick="setTab(this)">✕ Cancelados   <span class="count" id="cnt-cancelado">0</span></button>
+    <button class="tab t-orange" data-filter="retenido"  onclick="setTab(this)">⏸ Retenidos   <span class="count" id="cnt-retenido">0</span></button>
+    <input class="search-box" id="search-box" placeholder="🔍 Buscar cliente, ciudad, ID..." oninput="renderTable()"/>
+  </div>
+
+  <div class="grid-main">
+
+    <!-- Tabla de pedidos -->
+    <div class="table-wrap">
+      <div class="table-header">
+        <span>Pedidos · <span class="row-count" id="row-count">0</span> resultados</span>
+        <span id="last-update" style="font-size:.72rem;color:var(--muted)"></span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th class="select-col"><input type="checkbox" class="row-sel" id="select-all" onclick="toggleAllSelect(this)" title="Seleccionar todos"></th>
+            <th>ID</th>
+            <th>Cliente</th>
+            <th>Ciudad</th>
+            <th>Productos</th>
+            <th>Total</th>
+            <th>Estado</th>
+            <th>Mastershop</th>
+            <th>Fecha / Hora</th>
+          </tr>
+        </thead>
+        <tbody id="orders-tbody">
+          <tr><td colspan="9" class="empty">Cargando pedidos...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+
+      <!-- Detalle del pedido -->
+      <div class="card">
+        <div class="card-title">Detalle del pedido</div>
+        <div id="detail-area" class="detail-empty">Haz clic en un pedido para ver el detalle.</div>
+      </div>
+
+      <!-- Distribución -->
+      <div class="card">
+        <div class="card-title">Distribución por estado</div>
+        <div id="dist-area"></div>
+      </div>
+
+      <!-- Mastershop Sync -->
+      <div class="card ms-card">
+        <div class="card-title">↔ Mastershop</div>
+        <p class="ms-note">Sincroniza el estado de los pedidos con tu panel de Mastershop. Requiere que hayas completado el onboarding y tengas productos asociados.</p>
+        <button class="ms-btn" onclick="syncMastershop()">Sincronizar con Mastershop</button>
+        <div class="ms-result" id="ms-result"></div>
+      </div>
+
+    </div>
+  </div>
+</main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIGURACIÓN ──────────────────────────────────────────
+const PANEL_PASSWORD     = ''; // DEMO: sin contraseña
+// ══════════════════════════════════════════════════════════
+// MAPA DE PRODUCTOS → IDs DE MASTERSHOP
+// Si un producto nuevo no está aquí, edítalo y agrega su idProduct/idVariation.
+// Las claves son fragmentos del nombre (se busca por substring en minúsculas).
+// ══════════════════════════════════════════════════════════
+const PRODUCT_MS_MAP = {
+  // ── Suplementos ──────────────────────────────────────────
+  'keto detox x2':        { idProduct: '179953', idVariation: '' },
+  'keto detox toplux x3': { idProduct: '179957', idVariation: '' },
+  'keto detox x3':        { idProduct: '179957', idVariation: '' },
+  'lemme burn x2':        { idProduct: '179601', idVariation: '' },
+  'lemme burn':           { idProduct: '177125', idVariation: '' },
+  'ashwagandha':          { idProduct: '208886', idVariation: '' },
+  'clorof':               { idProduct: '157125', idVariation: '' },
+  'fitovit':              { idProduct: '157125', idVariation: '' },
+  'magnesium 12':         { idProduct: '175734', idVariation: '' },
+  'magnesio 7':           { idProduct: '201240', idVariation: '' },
+  'melena de le':         { idProduct: '173162', idVariation: '' },
+  'deos':                 { idProduct: '144964', idVariation: '' },
+  'matcha':               { idProduct: '171093', idVariation: '' },
+  // ── Bienestar ────────────────────────────────────────────
+  'masajeador facial':    { idProduct: '189901', idVariation: '' },
+  'pistola de masaje':    { idProduct: '180715', idVariation: '' },
+  'corrector de postura': { idProduct: '100902', idVariation: '' },
+  'smartwatch':           { idProduct: '67323',  idVariation: '' },
+  // ── Skincare ─────────────────────────────────────────────
+  'mascarilla led':       { idProduct: '129256', idVariation: '' },
+  'serum vitamina':       { idProduct: '62231',  idVariation: '' },
+  'rodillo de jade':      { idProduct: '93895',  idVariation: '' },
+  'mascarilla capilar':   { idProduct: '181459', idVariation: '' },
+  // ── Nutricion / Hogar ────────────────────────────────────
+  'licuadora':            { idProduct: '130210', idVariation: '' },
+  'difusor':              { idProduct: '208730', idVariation: '' },
+};
+
+const STORAGE_KEY        = 'demo_velozi_orders'; // Misma key que usa index.html
+const MASTERSHOP_API_KEY = ''; // DEMO: sin credenciales
+const AUTH_KEY           = 'velozi_panel_auth'; // Sesión persistente
+
+// ── ESTADO ────────────────────────────────────────────────
+let orders      = [];
+let currentFilter = 'todos';
+let selectedId       = null;
+let selectedForExcel = new Set(); // IDs marcados para carga masiva
+
+// ══════════════════════════════════════════════════════════
+// CARGA MASIVA A MASTERSHOP (Excel)
+// ══════════════════════════════════════════════════════════
+function toggleRowSelect(id, checked) {
+  if (checked) selectedForExcel.add(id);
+  else         selectedForExcel.delete(id);
+  updateBulkBar();
+}
+
+function toggleAllSelect(checkbox) {
+  const visibleIds = getVisibleOrders().filter(o => !o.ms_order_id).map(o => o.id);
+  if (checkbox.checked) visibleIds.forEach(id => selectedForExcel.add(id));
+  else                  visibleIds.forEach(id => selectedForExcel.delete(id));
+  renderTable();
+  updateBulkBar();
+}
+
+function openBulkAll() {
+  // Selecciona automáticamente todos los pedidos pendientes (no enviados a MS)
+  orders.filter(o => !o.ms_order_id && o.status !== 'cancelado')
+        .forEach(o => selectedForExcel.add(o.id));
+  renderTable();
+  updateBulkBar();
+  if (selectedForExcel.size === 0) showToast('No hay pedidos pendientes para enviar');
+  else showToast('✓ ' + selectedForExcel.size + ' pedido(s) seleccionado(s)');
+}
+
+function clearSelection() {
+  selectedForExcel.clear();
+  const sa = document.getElementById('select-all');
+  if (sa) sa.checked = false;
+  renderTable();
+  updateBulkBar();
+}
+
+function updateBulkBar() {
+  const bar = document.getElementById('bulk-bar');
+  const cnt = document.getElementById('bulk-count');
+  if (!bar || !cnt) return;
+  const n = selectedForExcel.size;
+  if (n === 0) { bar.classList.remove('on'); return; }
+  bar.classList.add('on');
+  cnt.textContent = n + (n === 1 ? ' pedido seleccionado' : ' pedidos seleccionados');
+}
+
+function getVisibleOrders() {
+  let list = currentFilter === 'todos'
+    ? orders.slice()
+    : orders.filter(o => o.status === currentFilter);
+  const q = (document.getElementById('search-box')?.value || '').toLowerCase().trim();
+  if (q) {
+    list = list.filter(o =>
+      (o.customer || '').toLowerCase().includes(q) ||
+      (o.city     || '').toLowerCase().includes(q) ||
+      (o.id       || '').toLowerCase().includes(q)
+    );
+  }
+  return list;
+}
+
+function lookupMsProduct(itemName) {
+  const n = (itemName || '').toLowerCase();
+  for (const key in PRODUCT_MS_MAP) {
+    if (n.includes(key)) return PRODUCT_MS_MAP[key];
+  }
+  return { idProduct: '', idVariation: '' };
+}
+
+function splitName(full) {
+  const parts = (full || '').trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return { nombres: '', apellidos: '' };
+  if (parts.length === 1) return { nombres: parts[0], apellidos: '' };
+  const mid = Math.ceil(parts.length / 2);
+  return {
+    nombres:   parts.slice(0, mid).join(' '),
+    apellidos: parts.slice(mid).join(' ')
+  };
+}
+
+function splitCity(cityStr) {
+  // o.city típicamente: "Manizales, Caldas"
+  const parts = (cityStr || '').split(',').map(s => s.trim()).filter(Boolean);
+  if (parts.length >= 2) return { ciudad: parts[0], departamento: parts[1] };
+  return { ciudad: parts[0] || '', departamento: '' };
+}
+
+function generateBulkExcel() {
+  if (typeof XLSX === 'undefined') {
+    showToast('⚠ Librería Excel no cargada. Recarga la página.');
+    return;
+  }
+  if (selectedForExcel.size === 0) {
+    showToast('Marca al menos un pedido');
+    return;
+  }
+
+  const selected = orders.filter(o => selectedForExcel.has(o.id));
+  const headers = [
+    'N° PEDIDO','NOMBRES*','APELLIDOS','CEDULA (OPCIONAL)','TELÉFONO',
+    'DIRECCIÓN Y BARRIO*','DEPARTAMENTO*','CIUDAD*','ID DE PRODUCTO*','ID DE VARIACION*',
+    'CANTIDAD*','PRECIO UNITARIO (SIN PUNTOS NI COMAS)*','OTROS CARGOS','VALOR OTROS CARGOS',
+    'CON RECAUDO (SI/NO)*','NOTA','EMAIL (OPCIONAL)'
+  ];
+  const rows = [headers];
+  const missingProducts = new Set();
+  let rowNum = 1;
+
+  for (const o of selected) {
+    const { nombres, apellidos }       = splitName(o.customer);
+    const { ciudad, departamento }     = splitCity(o.city);
+    const phone   = (o.phone || '').replace(/\D/g, '');
+    const address = o.address || o.direccion || '';
+    const items   = (o.items && o.items.length) ? o.items : [{ name:'', qty:1, price:o.total||0 }];
+
+    for (const it of items) {
+      const ms = lookupMsProduct(it.name);
+      if (!ms.idProduct) missingProducts.add((it.name || '').split('—')[0].trim());
+      rows.push([
+        rowNum++,
+        nombres,
+        apellidos,
+        '',
+        phone,
+        address,
+        departamento,
+        ciudad,
+        ms.idProduct,
+        ms.idVariation,
+        it.qty || 1,
+        Math.round(it.price || 0),
+        '',
+        '',
+        'SI',
+        'Pedido VELOZI ' + o.id,
+        ''
+      ]);
+    }
+  }
+
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  // Ajustar anchos de columna
+  ws['!cols'] = [
+    {wch:8},{wch:18},{wch:14},{wch:12},{wch:13},{wch:28},{wch:16},{wch:18},
+    {wch:12},{wch:14},{wch:8},{wch:18},{wch:14},{wch:14},{wch:12},{wch:22},{wch:18}
+  ];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Pedidos');
+  const fname = 'VELOZI_carga_masiva_' + new Date().toISOString().slice(0,10) + '_' + (new Date().getTime() % 100000) + '.xlsx';
+  XLSX.writeFile(wb, fname);
+
+  // Marcar pedidos como "subidos" en estado local (el webhook confirmará después)
+  for (const id of selectedForExcel) {
+    const idx = orders.findIndex(o => o.id === id);
+    if (idx !== -1) {
+      orders[idx].status = 'subido';
+      orders[idx].ms_excel_exported_at = new Date().toISOString();
+      pushUpdateToServer(id, { status:'subido', ms_excel_exported_at: orders[idx].ms_excel_exported_at });
+    }
+  }
+  saveOrders();
+  clearSelection();
+  refresh();
+
+  let msg = '✓ Excel generado con ' + (rowNum - 1) + ' fila(s)';
+  if (missingProducts.size) {
+    msg += ' ⚠ Faltan IDs de Mastershop: ' + Array.from(missingProducts).join(', ');
+  }
+  showToast(msg);
+}
+
+
+// ── LOGIN ─────────────────────────────────────────────────
+function showApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  init();
+}
+
+function doLogin() {
+  const pwd = document.getElementById('pwd-input').value;
+  if (pwd === PANEL_PASSWORD) {
+    localStorage.setItem(AUTH_KEY, '1');
+    showApp();
+  } else {
+    document.getElementById('login-err').textContent = 'Contraseña incorrecta. Inténtalo de nuevo.';
+    document.getElementById('pwd-input').value = '';
+    document.getElementById('pwd-input').focus();
+  }
+}
+
+function logout() {
+  localStorage.removeItem(AUTH_KEY);
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('pwd-input').value = '';
+}
+
+// ── CARGA DE DATOS (servidor + localStorage) ──────────────
+async function loadOrders() {
+  // DEMO: en la versión real se leen de orders.php (servidor) y se fusionan con localStorage
+  orders = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null') || demoSeed();
+  // Migrar status viejo 'nuevo' → 'pendiente'
+  orders = orders.map(o => ({
+    ...o,
+    status: o.status === 'nuevo' ? 'pendiente' : (o.status || 'pendiente')
+  }));
+  // Sincronizar localStorage con lo del servidor
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
+  document.getElementById('last-update').textContent =
+    'Actualizado ' + new Date().toLocaleTimeString('es-CO');
+}
+
+// Fusionar pedidos del servidor (gana en ms_*) con localStorage
+function mergeOrders(serverOrders, localOrders) {
+  const map = new Map();
+  localOrders.forEach(o => { if (o.id) map.set(o.id, o); });
+  serverOrders.forEach(o => {
+    if (!o.id) return;
+    if (map.has(o.id)) {
+      // Servidor gana en campos de Mastershop; cliente aporta el resto
+      map.set(o.id, { ...map.get(o.id), ...o });
+    } else {
+      map.set(o.id, o);
+    }
+  });
+  return Array.from(map.values())
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
+}
+
+function saveOrders() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
+}
+
+// Guardar un pedido específico en el servidor
+function pushOrderToServer(order) { return; // DEMO: sin servidor
+  fetch('orders.php', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ action: 'save', order: order }),
+  }).catch(() => {});
+}
+
+// Actualizar campos específicos de un pedido en el servidor
+function pushUpdateToServer(id, fields) { return; // DEMO: sin servidor
+  fetch('orders.php', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ action: 'update', id, fields }),
+  }).catch(() => {});
+}
+
+// ── STATS ─────────────────────────────────────────────────
+function renderStats() {
+  const total      = orders.length;
+  const revenue    = orders.reduce((s, o) => s + (o.total || 0), 0);
+  const cPendiente = orders.filter(o => o.status === 'pendiente').length;
+  const cSubido    = orders.filter(o => o.status === 'subido').length;
+  const cEnviado   = orders.filter(o => o.status === 'enviado').length;
+  const cNovedad   = orders.filter(o => o.status === 'novedad').length;
+  const cCancel    = orders.filter(o => o.status === 'cancelado').length;
+  const cReten     = orders.filter(o => o.status === 'retenido').length;
+
+  const hoy = new Date().toLocaleDateString('es-CO');
+  const hoyCount = orders.filter(o => {
+    try { return new Date(o.date).toLocaleDateString('es-CO') === hoy; } catch(e) { return false; }
+  }).length;
+
+  document.getElementById('s-total').textContent     = total;
+  document.getElementById('s-hoy').textContent       = hoyCount + ' hoy';
+  document.getElementById('s-revenue').textContent   = fmtCOP(revenue);
+  document.getElementById('s-pendiente').textContent = cPendiente;
+  document.getElementById('s-enviado').textContent   = cEnviado;
+  document.getElementById('s-problemas').textContent = cCancel + cReten + cNovedad;
+
+  // Tab counts
+  document.getElementById('cnt-todos').textContent     = total;
+  document.getElementById('cnt-pendiente').textContent = cPendiente;
+  document.getElementById('cnt-subido').textContent    = cSubido;
+  document.getElementById('cnt-enviado').textContent   = cEnviado;
+  document.getElementById('cnt-novedad').textContent   = cNovedad;
+  document.getElementById('cnt-cancelado').textContent = cCancel;
+  document.getElementById('cnt-retenido').textContent  = cReten;
+
+  // Distribution bars
+  const dists = [
+    { label:'Pendientes', n: cPendiente, color:'#64748b' },
+    { label:'Subidos',    n: cSubido,    color:'var(--blue)' },
+    { label:'Enviados',   n: cEnviado,   color:'var(--green)' },
+    { label:'Novedades',  n: cNovedad,   color:'var(--orange)' },
+    { label:'Cancelados', n: cCancel,    color:'var(--red)' },
+  ];
+  const max = Math.max(1, ...dists.map(d => d.n));
+  document.getElementById('dist-area').innerHTML = dists.map(d => `
+    <div class="dist-row">
+      <span class="dist-label">${d.label}</span>
+      <div class="dist-bar-bg">
+        <div class="dist-bar" style="width:${Math.round(d.n/max*100)}%;background:${d.color}"></div>
+      </div>
+      <span class="dist-n">${d.n}</span>
+    </div>
+  `).join('');
+}
+
+// ── TABLA ─────────────────────────────────────────────────
+function renderTable() {
+  const search = document.getElementById('search-box').value.toLowerCase();
+  let list = currentFilter === 'todos'
+    ? orders
+    : orders.filter(o => o.status === currentFilter);
+
+  if (search) {
+    list = list.filter(o =>
+      (o.customer || '').toLowerCase().includes(search) ||
+      (o.city     || '').toLowerCase().includes(search) ||
+      (o.id       || '').toLowerCase().includes(search) ||
+      (o.phone    || '').toLowerCase().includes(search)
+    );
+  }
+
+  document.getElementById('row-count').textContent = list.length;
+
+  if (!list.length) {
+    document.getElementById('orders-tbody').innerHTML =
+      `<tr><td colspan="9" class="empty">No hay pedidos con este filtro.</td></tr>`;
+    return;
+  }
+
+  document.getElementById('orders-tbody').innerHTML = list.map(o => {
+    const prods = (o.items || []).map(i => i.name.split('—')[0].trim() + (i.qty > 1 ? ' ×' + i.qty : '')).join(', ');
+    const sel   = o.id === selectedId ? 'selected' : '';
+    const checked = selectedForExcel.has(o.id) ? 'checked' : '';
+    const disabled = o.ms_order_id ? 'disabled title="Ya enviado a Mastershop"' : '';
+    return `
+    <tr class="data-row ${sel}" onclick="selectOrder('${o.id}')">
+      <td class="select-col" onclick="event.stopPropagation()"><input type="checkbox" class="row-sel" ${checked} ${disabled} onchange="toggleRowSelect('${o.id}', this.checked)"></td>
+      <td style="color:var(--purple-l);font-weight:600;font-size:.8rem">${o.id}</td>
+      <td>
+        <div style="font-weight:500">${o.customer || '—'}</div>
+        <div style="color:var(--muted);font-size:.72rem">${o.phone || ''}</div>
+      </td>
+      <td style="color:var(--muted)">${o.city || '—'}</td>
+      <td style="color:var(--muted);font-size:.76rem;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${prods || '—'}</td>
+      <td style="font-weight:600;color:var(--green)">${fmtCOP(o.total || 0)}</td>
+      <td><span class="badge b-${o.status}">${labelStatus(o.status)}</span></td>
+      <td>${msStatusBadge(o)}</td>
+      <td style="color:var(--muted);font-size:.76rem">${fmtDateTime(o.date)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── DETALLE ───────────────────────────────────────────────
+function selectOrder(id) {
+  selectedId = id;
+  const o = orders.find(x => x.id === id);
+  if (!o) return;
+
+  renderTable(); // Actualizar fila seleccionada
+
+  const prods = (o.items || []).map(i => `
+    <div class="item-row">
+      <span>${i.name.split('—')[0].trim()} ×${i.qty}</span>
+      <span style="color:var(--green)">${fmtCOP((i.price || 0) * (i.qty || 1))}</span>
+    </div>`).join('');
+
+  document.getElementById('detail-area').innerHTML = `
+    <div class="drow"><span class="dkey">ID</span><span class="dval" style="color:var(--purple-l)">${o.id}</span></div>
+    <div class="drow"><span class="dkey">Cliente</span><span class="dval">${o.customer || '—'}</span></div>
+    <div class="drow"><span class="dkey">Teléfono</span><span class="dval"><a href="tel:${o.phone}" style="color:var(--purple-l)">${o.phone || '—'}</a></span></div>
+    <div class="drow"><span class="dkey">Ciudad</span><span class="dval">${o.city || '—'}</span></div>
+    <div class="drow"><span class="dkey">Dirección</span><span class="dval">${o.address || '—'}</span></div>
+    <div class="drow"><span class="dkey">Total COD</span><span class="dval" style="color:var(--green);font-weight:700">${fmtCOP(o.total || 0)}</span></div>
+    <div class="drow"><span class="dkey">Fecha</span><span class="dval">${fmtDateTime(o.date)}</span></div>
+    <div class="drow"><span class="dkey">Estado</span><span class="dval"><span class="badge b-${o.status}">${labelStatus(o.status)}</span></span></div>
+    <div class="drow"><span class="dkey">Mastershop</span><span class="dval">${msStatusBadge(o)}</span></div>
+    ${o.ms_order_id ? '<div class="drow"><span class="dkey">ID Mastershop</span><span class="dval" style="color:var(--purple-l)">' + o.ms_order_id + '</span></div>' : ''}
+    ${o.ms_carrier ? '<div class="drow"><span class="dkey">Transportadora</span><span class="dval">' + o.ms_carrier + '</span></div>' : ''}
+    ${o.ms_tracking ? '<div class="drow"><span class="dkey">Guía</span><span class="dval" style="color:var(--blue)">' + o.ms_tracking + '</span></div>' : ''}
+    <div style="margin-top:.9rem;font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:.4rem">Productos</div>
+    <div class="items-list">${prods}</div>
+    <div style="margin-top:1rem;font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:.5rem">Cambiar estado</div>
+    <div class="status-btns">
+      <button class="s-btn ${o.status==='pendiente'?'active-s':''}"  onclick="changeStatus('${o.id}','pendiente')">⏳ Pendiente</button>
+      <button class="s-btn ${o.status==='subido'?'active-s':''}"     onclick="changeStatus('${o.id}','subido')">☁ Subido</button>
+      <button class="s-btn ${o.status==='enviado'?'active-s':''}"    onclick="changeStatus('${o.id}','enviado')">✈ Enviado</button>
+      <button class="s-btn ${o.status==='novedad'?'active-s':''}"    onclick="changeStatus('${o.id}','novedad')">⚠ Novedad</button>
+      <button class="s-btn ${o.status==='cancelado'?'active-s':''}"  onclick="changeStatus('${o.id}','cancelado')">✕ Cancelado</button>
+      <button class="s-btn ${o.status==='retenido'?'active-s':''}"   onclick="changeStatus('${o.id}','retenido')">⏸ Retenido</button>
+    </div>
+    <div style="margin-top:1rem">
+      ${!o.ms_order_id
+        ? `<button id="ms-send-btn-${o.id}" class="ms-btn" onclick="sendToMastershop('${o.id}')">↑ Enviar a Mastershop</button>`
+        : `<div style="text-align:center;font-size:.75rem;color:var(--green);padding:.5rem">✓ Ya enviado a Mastershop${o.ms_order_id ? ' #' + o.ms_order_id : ''}</div>`
+      }
+      <div class="ms-result" id="ms-send-result-${o.id}"></div>
+    </div>
+  `;
+}
+
+// ── CAMBIAR ESTADO ────────────────────────────────────────
+function changeStatus(id, newStatus) {
+  const idx = orders.findIndex(o => o.id === id);
+  if (idx === -1) return;
+  orders[idx].status = newStatus;
+  saveOrders();
+  pushUpdateToServer(id, { status: newStatus });
+  refresh();
+  selectOrder(id);
+  showToast('Estado actualizado: ' + labelStatus(newStatus));
+}
+
+// ── TABS ──────────────────────────────────────────────────
+function setTab(btn) {
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  currentFilter = btn.dataset.filter;
+  renderTable();
+}
+
+// ── SYNC MASTERSHOP (API Real) ────────────────────────────
+async function syncMastershop() {
+  // DEMO: simula la respuesta de mastershop_sync.php avanzando el estado logístico
+  const resultEl = document.getElementById('ms-result');
+  const syncEl   = document.getElementById('sync-status');
+  resultEl.style.color = 'var(--muted)';
+  resultEl.textContent = '⏳ Conectando con Mastershop (simulado)...';
+  await new Promise(r => setTimeout(r, 900));
+  const flow = ['Por Confirmar','Confirmado','En tránsito','Entregado'];
+  let updated = 0;
+  orders.forEach(o => {
+    if (!o.ms_order_id) return;
+    const i = flow.indexOf(o.ms_status);
+    if (i >= 0 && i < flow.length - 1) {
+      o.ms_status = flow[i + 1];
+      o.status = mapMastershopStatus(o.ms_status);
+      if (o.ms_status === 'En tránsito' && !o.ms_tracking) o.ms_tracking = String(2220950000 + Math.floor(Math.random() * 9999));
+      updated++;
+    }
+  });
+  saveOrders(); refresh();
+  resultEl.style.color = 'var(--green)';
+  resultEl.textContent = '✓ ' + orders.length + ' pedidos leídos (' + updated + ' actualizados) · simulado';
+  syncEl.textContent = 'Sync OK ' + new Date().toLocaleTimeString('es-CO');
+}
+
+function mapMastershopStatus(msStatus) {
+  const s = (msStatus || '').toLowerCase();
+  if (s.includes('confirm') || s.includes('preparar')) return 'subido';
+  if (s.includes('despach') || s.includes('transit') || s.includes('ruta')) return 'enviado';
+  if (s.includes('entreg'))  return 'enviado';
+  if (s.includes('devol') || s.includes('cancel'))     return 'cancelado';
+  if (s.includes('novedad')) return 'novedad';
+  if (s.includes('reten') || s.includes('hold'))       return 'retenido';
+  return 'subido';
+}
+
+// ── MASTERSHOP STATUS BADGE ──────────────────────────────
+function msStatusBadge(o) {
+  if (!o.ms_order_id && !o.ms_status) return '<span style="color:var(--muted);font-size:.72rem">— No enviado</span>';
+
+  const s = (o.ms_status || '').toLowerCase();
+  let color = 'var(--muted)', icon = '⏳', label = o.ms_status || 'Pendiente';
+
+  if (s.includes('confirm'))  { color = 'var(--purple-l)'; icon = '🔔'; }
+  if (s.includes('preparar')) { color = 'var(--amber)';     icon = '📦'; }
+  if (s.includes('despach') || s.includes('transit') || s.includes('ruta')) { color = 'var(--blue)'; icon = '🚚'; }
+  if (s.includes('entreg'))   { color = 'var(--green)';     icon = '✅'; }
+  if (s.includes('devol'))    { color = 'var(--red)';       icon = '↩️'; }
+  if (s.includes('cancel'))   { color = 'var(--red)';       icon = '✕'; }
+  if (s.includes('novedad'))  { color = 'var(--orange)';    icon = '⚠'; }
+
+  return '<span style="color:' + color + ';font-size:.72rem;font-weight:600">' + icon + ' ' + label + '</span>';
+}
+
+// ── FECHA + HORA ─────────────────────────────────────────
+function fmtDateTime(d) {
+  if (!d) return '—';
+  try {
+    const date = new Date(d);
+    if (isNaN(date)) return d;
+    return date.toLocaleDateString('es-CO', { day:'2-digit', month:'short', year:'numeric' })
+      + ' ' + date.toLocaleTimeString('es-CO', { hour:'2-digit', minute:'2-digit', hour12:true });
+  } catch(e) { return d; }
+}
+
+// ── EXPORTAR CSV ──────────────────────────────────────────
+function exportCSV() {
+  if (!orders.length) { showToast('No hay pedidos para exportar'); return; }
+
+  const headers = ['ID','Fecha','Cliente','Teléfono','Ciudad','Dirección','Productos','Total COP','Estado'];
+  const rows = orders.map(o => [
+    o.id,
+    o.date,
+    o.customer,
+    o.phone,
+    o.city,
+    '"' + (o.address || '').replace(/"/g, "'") + '"',
+    '"' + (o.items || []).map(i => i.name.split('—')[0].trim() + ' x' + i.qty).join(' | ').replace(/"/g, "'") + '"',
+    o.total,
+    o.status,
+  ]);
+
+  const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'VELOZI_pedidos_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('✓ CSV exportado con ' + orders.length + ' pedidos');
+}
+
+// ── HELPERS ───────────────────────────────────────────────
+function fmtCOP(n) {
+  return '$' + Math.round(n).toLocaleString('es-CO');
+}
+
+function fmtDate(d) {
+  if (!d) return '—';
+  try {
+    const date = new Date(d);
+    if (isNaN(date)) return d;
+    return date.toLocaleDateString('es-CO', { day:'2-digit', month:'short', year:'numeric' });
+  } catch(e) { return d; }
+}
+
+function labelStatus(s) {
+  return {
+    pendiente: 'Pendiente',
+    nuevo:     'Pendiente',
+    subido:    'Subido',
+    enviado:   'Enviado',
+    novedad:   'Novedad',
+    cancelado: 'Cancelado',
+    retenido:  'Retenido',
+  }[s] || s;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ── ENVIAR PEDIDO A MASTERSHOP ────────────────────────────
+async function sendToMastershop(id) {
+  // DEMO: simula send_order.php (login → crear cliente → cotizar envío → crear pedido)
+  const btn = document.getElementById('ms-send-btn-' + id);
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Enviando...'; }
+  await new Promise(r => setTimeout(r, 1100));
+  const o = orders.find(x => x.id === id);
+  if (!o) return;
+  o.status = 'subido';
+  o.ms_order_id = String(480000 + Math.floor(Math.random() * 9999));
+  o.ms_carrier = ['Servientrega','Interrapidísimo','Coordinadora','TCC'][Math.floor(Math.random() * 4)];
+  o.ms_status = 'Por Confirmar';
+  saveOrders(); refresh(); selectOrder(id);
+  showToast('✓ Pedido creado en Mastershop #' + o.ms_order_id + ' (simulado)');
+}
+
+function demoSeed() {
+  const N = ['Laura Contreras','Andrés Villamizar','Paola Jaimes','Camilo Rincón','Yuliana Duarte','Óscar Peñaranda','Natalia Suárez','Jhon Quintero','Marcela Ortega','Kevin Galvis','Diana Parada','Fernando Leal'];
+  const C = [['Cúcuta','Norte de Santander'],['Bogotá','Cundinamarca'],['Medellín','Antioquia'],['Bucaramanga','Santander'],['Cali','Valle del Cauca'],['Barranquilla','Atlántico'],['Villavicencio','Meta'],['Pereira','Risaralda']];
+  const P = [['Mascarilla LED Facial',179900],['Smartwatch Femenino',129900],['Keto Detox x2',129900],['Corrector de Postura',94900],['Ashwagandha KSM-66',99900],['Masajeador Microcorriente',79900]];
+  const S = [['enviado','Entregado','Servientrega'],['enviado','En tránsito','Interrapidísimo'],['subido','Confirmado','Coordinadora'],['subido','Por Confirmar','TCC'],['novedad','Novedad','Servientrega'],['cancelado','Devolución','Interrapidísimo'],['pendiente','',''],['pendiente','','']];
+  const now = Date.now(), out = [];
+  for (let i = 0; i < 12; i++) {
+    const c = C[i % C.length], p = P[(i * 5) % P.length], st = S[i % S.length], qty = i % 5 === 0 ? 2 : 1;
+    const o = {
+      id: 'VELOZI-' + (now - i * 7200000 - i * 1234),
+      date: new Date(now - i * 7200000 - (i > 3 ? 86400000 * (i % 4) : 0)).toISOString(),
+      customer: N[i], phone: '300 000 ' + String(1000 + i * 137).slice(0, 4),
+      city: c[0] + ', ' + c[1], city_only: c[0], state: c[1],
+      address: 'Calle ' + (10 + i) + ' # ' + (4 + i) + '-' + (20 + i) + ' (dato ficticio)',
+      items: [{ name: p[0], qty, price: p[1] }], total: p[1] * qty, status: st[0]
+    };
+    if (st[1]) { o.ms_order_id = String(470100 + i * 31); o.ms_status = st[1]; o.ms_carrier = st[2]; }
+    if (st[1] === 'Entregado' || st[1] === 'En tránsito') o.ms_tracking = String(2220954000 + i * 97);
+    out.push(o);
+  }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(out));
+  return out;
+}
+
+// ── INIT ──────────────────────────────────────────────────
+async function refresh() {
+  await loadOrders();
+  renderStats();
+  renderTable();
+}
+
+async function init() {
+  await refresh();
+  setInterval(refresh, 15000); // Auto-refresh cada 15s (webhook actualiza el servidor)
+}
+
+// ── AUTO-LOGIN: si ya inició sesión antes, entrar directo ──
+showApp(); // DEMO: sin inicio de sesión
+window.addEventListener('storage', e => { if (e.key === STORAGE_KEY) refresh(); });
+window.addEventListener('message', e => { if (e.data === 'refresh-orders') refresh(); });
+</script>
+
+<!-- ── Barra flotante de carga masiva ── -->
+<div class="bulk-bar" id="bulk-bar">
+  <span class="count-b" id="bulk-count">0 pedidos seleccionados</span>
+  <button class="gen-b" onclick="generateBulkExcel()">📊 Generar Excel Mastershop</button>
+  <button class="close-b" onclick="clearSelection()" title="Limpiar selección">✕</button>
+</div>
+
+</body>
+</html>
