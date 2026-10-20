@@ -531,9 +531,9 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
 
 <div class="wrap">
   <div class="figures rv">
-    <div class="fig"><div class="n">8</div><p>tablas relacionales diseñadas para una app de movilidad</p></div>
-    <div class="fig"><div class="n">18</div><p>políticas de seguridad a nivel de fila (RLS) en PostgreSQL</p></div>
-    <div class="fig"><div class="n">1.074</div><p>líneas de SQL generadas con IA bajo mi dirección y revisadas por mí</p></div>
+    <div class="fig"><div class="n">9</div><p>tablas relacionales diseñadas para una app de movilidad</p></div>
+    <div class="fig"><div class="n">21/21</div><p>pruebas de seguridad que pasan: intentan, como usuario, lo que no se debe poder hacer</p></div>
+    <div class="fig"><div class="n">9</div><p>problemas encontrados en una revisión externa y corregidos, uno por commit</p></div>
     <div class="fig"><div class="n">6</div><p>proyectos construidos con IA, uno de ellos una tienda en línea con ventas reales</p></div>
   </div>
 </div>
@@ -555,14 +555,14 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
         <span class="num">01 / Diseñar</span>
         <h3>Del negocio al <span class="it">esquema.</span></h3>
         <p class="claim">Con la IA, convierto un proceso de negocio en tablas, relaciones y reglas que impiden datos inválidos desde el origen.</p>
-        <div class="ev"><b>Evidencia</b>ALIS: 8 tablas, 12 tipos enumerados, 16 índices y restricciones de integridad.</div>
+        <div class="ev"><b>Evidencia</b>ALIS: 9 tablas, 12 tipos enumerados, llaves foráneas y validaciones <code>CHECK</code> que rechazan datos inválidos.</div>
         <div class="for"><b>Para su empresa</b>Pasar inventarios, clientes o ventas de hojas de Excel a una base de datos consistente.</div>
       </article>
       <article class="pillar rv">
         <span class="num">02 / Proteger</span>
         <h3>Seguridad desde el <span class="it">diseño.</span></h3>
-        <p class="claim">Cada usuario ve solo lo suyo. Con la IA reviso accesos, datos expuestos y el cumplimiento de la ley de protección de datos.</p>
-        <div class="ev"><b>Evidencia</b>18 políticas RLS, auditoría de seguridad asistida por IA y política de Habeas Data (Ley 1581).</div>
+        <p class="claim">Cada usuario ve solo lo suyo. Con la IA diseño los accesos, y los compruebo intentando romperlos como lo haría un usuario.</p>
+        <div class="ev"><b>Evidencia</b>ALIS: 4 fallas críticas encontradas probando como usuario, corregidas y cubiertas con 21 pruebas. Habeas Data (Ley 1581).</div>
         <div class="for"><b>Para su empresa</b>Detectar información de clientes expuesta antes de que se convierta en un problema legal.</div>
       </article>
       <article class="pillar rv">
@@ -613,7 +613,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
         <div class="block rv">
           <span class="label">01 · Modelo entidad–relación</span>
           <figure class="er">
-            <svg viewBox="0 0 820 550" role="img" aria-label="Diagrama entidad relación de ALIS con ocho tablas">
+            <svg viewBox="0 0 820 550" role="img" aria-label="Diagrama entidad relación con las ocho tablas principales de ALIS">
               <defs><marker id="many" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7"><circle cx="5" cy="5" r="4" fill="#8B6A3E"/></marker></defs>
               <g>
                 <path class="rel" d="M240 85 H300"/>
@@ -636,7 +636,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
               <g class="box" transform="translate(580,200)"><rect class="b" width="220" height="130"/><rect class="h" width="220" height="32"/><text class="t" x="14" y="21">wallet_transactions</text><text class="k" x="14" y="54">PK</text><text class="c" x="44" y="54">id</text><text class="k" x="14" y="76">FK</text><text class="c" x="44" y="76">wallet_id · trip_id</text><text class="c" x="44" y="98">amount · balance_after</text><text class="c" x="44" y="120">append-only</text></g>
               <g class="box" transform="translate(20,400)"><rect class="b" width="220" height="130"/><rect class="h" width="220" height="32"/><text class="t" x="14" y="21">payments</text><text class="k" x="14" y="54">PK</text><text class="c" x="44" y="54">id</text><text class="k" x="14" y="76">FK</text><text class="c" x="44" y="76">trip_id</text><text class="c" x="44" y="98">method  enum</text><text class="c" x="44" y="120">status · provider</text></g>
               <g class="box" transform="translate(300,400)"><rect class="b" width="220" height="130"/><rect class="h" width="220" height="32"/><text class="t" x="14" y="21">trip_offers</text><text class="k" x="14" y="54">PK</text><text class="c" x="44" y="54">id</text><text class="k" x="14" y="76">FK</text><text class="c" x="44" y="76">trip_id · driver_id</text><text class="c" x="44" y="98">status  enum</text><text class="c" x="44" y="120">expires_at</text></g>
-              <g class="note" transform="translate(580,400)"><rect width="220" height="130" rx="3"/><text class="big" x="18" y="46">RLS activo</text><text x="18" y="74">en las 8 tablas: cada usuario</text><text x="18" y="94">solo lee y modifica sus propios</text><text x="18" y="114">registros.</text></g>
+              <g class="note" transform="translate(580,400)"><rect width="220" height="130" rx="3"/><text class="big" x="18" y="46">RLS activo</text><text x="18" y="74">en todas las tablas: cada</text><text x="18" y="94">usuario solo lee lo suyo.</text><text x="18" y="114">Escribe solo el backend.</text></g>
             </svg>
             <figcaption><span>● Punto bronce: lado "muchos" de la relación</span><span>PK clave primaria · FK clave foránea · UQ única</span></figcaption>
           </figure>
@@ -645,12 +645,12 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
         <div class="block rv">
           <span class="label">02 · Decisiones de diseño</span>
           <ul class="decisions">
-            <li><span>a.</span><div><b>Billetera de solo inserción (append-only)</b><p>Los movimientos de dinero nunca se editan ni se borran. El saldo siempre se puede reconstruir y auditar desde el historial.</p></div></li>
+            <li><span>a.</span><div><b>Billetera de solo inserción (append-only)</b><p>Los movimientos de dinero nunca se editan ni se borran: un trigger lo impide incluso al backend, y nada contable se borra en cascada. El saldo siempre se puede reconstruir y auditar desde el historial.</p></div></li>
             <li><span>b.</span><div><b>Estados cerrados con ENUM</b><p>12 tipos enumerados (estado del viaje, método de pago, nivel del conductor) hacen imposible guardar un valor inválido.</p></div></li>
-            <li><span>c.</span><div><b>Seguridad a nivel de fila</b><p>El pasajero solo ve sus viajes y el conductor solo los que tiene asignados. La regla vive en la base de datos, no en la app.</p></div></li>
+            <li><span>c.</span><div><b>La app lee, el backend escribe</b><p>Con RLS, el pasajero solo ve sus viajes y el conductor solo los suyos. Y la app no tiene permiso de escribir: así nadie puede subirse de nivel ni cambiar una tarifa. La regla vive en la base de datos, no en la app.</p></div></li>
             <li><span>d.</span><div><b>La lógica cerca de los datos</b><p>La búsqueda de conductores cercanos (fórmula de Haversine), la tarifa y la comisión por nivel son funciones SQL.</p></div></li>
-            <li><span>e.</span><div><b>Índices para las consultas reales</b><p>Un índice parcial compuesto acelera la búsqueda de conductores disponibles, y 9 triggers mantienen fechas y perfiles al día.</p></div></li>
-            <li><span>f.</span><div><b>Privacidad por ley</b><p>Política de tratamiento de datos personales redactada bajo la Ley 1581 de 2012 y el Decreto 1377 de 2013.</p></div></li>
+            <li><span>e.</span><div><b>Índices solo donde una consulta los usa</b><p>Un índice parcial compuesto acelera la búsqueda de conductores disponibles; quité los que repetían el de un <code>UNIQUE</code>. Y 11 triggers mantienen fechas al día, validan calificaciones y protegen el dinero.</p></div></li>
+            <li><span>f.</span><div><b>Privacidad por ley</b><p>Política de tratamiento de datos personales redactada bajo la Ley 1581 de 2012 y el Decreto 1377 de 2013. Quien pide borrar su cuenta se anonimiza: se van sus datos personales y la contabilidad queda intacta.</p></div></li>
           </ul>
         </div>
 
@@ -662,24 +662,34 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
               <button role="tab" aria-selected="false" data-tab="t2">Seguridad RLS</button>
               <button role="tab" aria-selected="false" data-tab="t3">Billetera auditable</button>
             </div>
-<pre id="t1"><span class="tk-c">-- Conductores disponibles dentro de un radio, ordenados por distancia</span>
+<pre id="t1"><span class="tk-c">-- Conductores disponibles dentro de un radio, ordenados por distancia (Haversine)</span>
 <span class="tk-k">CREATE OR REPLACE FUNCTION</span> <span class="tk-f">public.nearby_drivers</span>(
   search_lat numeric, search_lng numeric,
   radius_km  numeric <span class="tk-k">DEFAULT</span> <span class="tk-n">3.0</span>,
   v_type     public.vehicle_type <span class="tk-k">DEFAULT</span> <span class="tk-s">'car'</span>
 ) <span class="tk-k">RETURNS TABLE</span> (driver_id uuid, distance_km numeric, ...)
 <span class="tk-k">LANGUAGE</span> sql <span class="tk-k">STABLE AS</span> $$
-  <span class="tk-k">SELECT</span> d.id,
-    (<span class="tk-n">6371.0</span> * <span class="tk-f">acos</span>(<span class="tk-f">cos</span>(<span class="tk-f">radians</span>(search_lat)) * <span class="tk-f">cos</span>(<span class="tk-f">radians</span>(d.current_lat))
-      * <span class="tk-f">cos</span>(<span class="tk-f">radians</span>(d.current_lng) - <span class="tk-f">radians</span>(search_lng))
-      + <span class="tk-f">sin</span>(<span class="tk-f">radians</span>(search_lat)) * <span class="tk-f">sin</span>(<span class="tk-f">radians</span>(d.current_lat))))::numeric(<span class="tk-n">8</span>,<span class="tk-n">3</span>)
+  <span class="tk-k">SELECT</span> d.id, dist.km
   <span class="tk-k">FROM</span> public.drivers d
   <span class="tk-k">JOIN</span> public.profiles p <span class="tk-k">ON</span> p.id = d.profile_id
+  <span class="tk-c">-- a = sin²(Δlat/2) + cos(lat1)·cos(lat2)·sin²(Δlng/2);  d = 2·R·asin(√a)</span>
+  <span class="tk-k">CROSS JOIN LATERAL</span> (
+    <span class="tk-k">SELECT</span> (<span class="tk-n">2</span> * <span class="tk-n">6371.0</span> * <span class="tk-f">asin</span>(<span class="tk-f">LEAST</span>(<span class="tk-n">1.0</span>, <span class="tk-f">sqrt</span>(
+        <span class="tk-f">power</span>(<span class="tk-f">sin</span>(<span class="tk-f">radians</span>(d.current_lat - search_lat) / <span class="tk-n">2</span>), <span class="tk-n">2</span>)
+      + <span class="tk-f">cos</span>(<span class="tk-f">radians</span>(search_lat)) * <span class="tk-f">cos</span>(<span class="tk-f">radians</span>(d.current_lat))
+      * <span class="tk-f">power</span>(<span class="tk-f">sin</span>(<span class="tk-f">radians</span>(d.current_lng - search_lng) / <span class="tk-n">2</span>), <span class="tk-n">2</span>)
+    ))))::numeric(<span class="tk-n">8</span>,<span class="tk-n">3</span>) <span class="tk-k">AS</span> km
+  ) dist
   <span class="tk-k">WHERE</span> d.status = <span class="tk-s">'available'</span> <span class="tk-k">AND</span> d.vehicle_type = v_type
-    <span class="tk-k">AND</span> d.is_active = <span class="tk-k">true</span>  <span class="tk-c">-- ...y distancia &lt;= radius_km</span>
-  <span class="tk-k">ORDER BY</span> distance_km <span class="tk-k">ASC</span>;
+    <span class="tk-k">AND</span> d.is_active = <span class="tk-k">true AND</span> dist.km &lt;= radius_km
+  <span class="tk-k">ORDER BY</span> dist.km <span class="tk-k">ASC</span>;
 $$;</pre>
-<pre id="t2" hidden><span class="tk-c">-- El conductor solo puede leer los viajes que tiene asignados</span>
+<pre id="t2" hidden><span class="tk-c">-- 1. Permisos: la app solo lee. Todo lo que escribe pasa por el backend.</span>
+<span class="tk-c">--    (RLS decide QUÉ FILAS; los permisos deciden QUÉ se puede hacer.)</span>
+<span class="tk-k">REVOKE ALL    ON ALL TABLES IN SCHEMA</span> public <span class="tk-k">FROM</span> anon, authenticated;
+<span class="tk-k">GRANT  SELECT ON ALL TABLES IN SCHEMA</span> public <span class="tk-k">TO</span>   authenticated;
+
+<span class="tk-c">-- 2. RLS: el conductor solo puede leer los viajes que tiene asignados</span>
 <span class="tk-k">ALTER TABLE</span> trips <span class="tk-k">ENABLE ROW LEVEL SECURITY</span>;
 
 <span class="tk-k">CREATE POLICY</span> <span class="tk-s">"trips_select_driver"</span>
@@ -696,17 +706,21 @@ $$;</pre>
   <span class="tk-k">USING</span> (passenger_id = <span class="tk-f">auth.uid</span>());</pre>
 <pre id="t3" hidden><span class="tk-c">-- Movimientos de la billetera (append-only).</span>
 <span class="tk-c">-- amount &gt; 0 suma saldo · amount &lt; 0 resta saldo.</span>
-<span class="tk-c">-- Nunca se edita ni se elimina un registro de esta tabla.</span>
 <span class="tk-k">CREATE TABLE IF NOT EXISTS</span> wallet_transactions (
   id            uuid <span class="tk-k">PRIMARY KEY DEFAULT</span> <span class="tk-f">gen_random_uuid</span>(),
-  wallet_id     uuid <span class="tk-k">NOT NULL REFERENCES</span> wallets(id) <span class="tk-k">ON DELETE CASCADE</span>,
-  trip_id       uuid <span class="tk-k">REFERENCES</span> trips(id) <span class="tk-k">ON DELETE SET NULL</span>,
+  wallet_id     uuid <span class="tk-k">NOT NULL REFERENCES</span> wallets(id) <span class="tk-k">ON DELETE RESTRICT</span>,
+  trip_id       uuid <span class="tk-k">REFERENCES</span> trips(id) <span class="tk-k">ON DELETE RESTRICT</span>,
   type          transaction_type <span class="tk-k">NOT NULL</span>,
   amount        numeric(<span class="tk-n">12</span>,<span class="tk-n">2</span>) <span class="tk-k">NOT NULL</span>,
   balance_after numeric(<span class="tk-n">12</span>,<span class="tk-n">2</span>) <span class="tk-k">NOT NULL</span>,
   created_at    timestamptz <span class="tk-k">NOT NULL DEFAULT</span> <span class="tk-f">now</span>()
-);</pre>
-            <div class="foot">Fragmentos tomados de los scripts originales del proyecto · PostgreSQL 15</div>
+);
+
+<span class="tk-c">-- Nadie la edita ni la borra, ni siquiera el backend (que se salta RLS)</span>
+<span class="tk-k">CREATE TRIGGER</span> trg_wallet_transactions_append_only
+  <span class="tk-k">BEFORE UPDATE OR DELETE ON</span> wallet_transactions
+  <span class="tk-k">FOR EACH ROW EXECUTE FUNCTION</span> <span class="tk-f">public.block_wallet_transaction_changes</span>();</pre>
+            <div class="foot">Fragmentos de los scripts del proyecto, versión corregida (oct-2026) · PostgreSQL · <a href="https://github.com/diego-chaustre-data/alis-base-de-datos" target="_blank" rel="noopener">Ver el código completo en GitHub ↗</a></div>
           </div>
         </div>
 
@@ -719,8 +733,8 @@ $$;</pre>
           </div>
           <div class="results">
             <div><div class="n">21</div><p>endpoints de API con validación de datos</p></div>
-            <div><div class="n">~3.000</div><p>líneas de TypeScript en el backend</p></div>
-            <div><div class="n">~3.900</div><p>líneas de Dart en la app móvil</p></div>
+            <div><div class="n">21/21</div><p>pruebas de seguridad en verde después de las correcciones</p></div>
+            <div><div class="n">8</div><p>commits en GitHub que muestran cada corrección paso a paso</p></div>
           </div>
         </div>
 
@@ -730,7 +744,8 @@ $$;</pre>
             <img class="phone" src="img/alis-conductor.webp" alt="App ALIS en modo conductor, en línea sobre el mapa de Cúcuta" loading="lazy" width="520" height="1156">
             <div>
               <p><b>Modo conductor en línea</b>, esperando viajes cercanos sobre el mapa de Cúcuta. El estado "disponible" se guarda en la tabla <code>drivers</code> y alimenta la función de búsqueda por cercanía.</p>
-              <p>Tras una auditoría de seguridad asistida por IA, el backend salió bien librado: verifica la propiedad de cada viaje, valida los datos y mantiene la clave maestra solo en el servidor. Los siguientes pasos son limitar peticiones por minuto y automatizar la expiración de ofertas.</p>
+              <p><b>La lección más útil:</b> una auditoría hecha con IA dijo que la seguridad estaba bien. Después, una revisión externa probó la app como usuario y encontró que un conductor podía subirse solo de nivel y un pasajero inventar viajes, porque la base de datos dejaba cambiar cualquier columna de las filas propias.</p>
+              <p>Escribí pruebas que reproducen cada ataque, corregí un problema por commit y hoy pasan 21 de 21. No basta con leer el código: hay que intentar romperlo. <a href="https://github.com/diego-chaustre-data/alis-base-de-datos/blob/main/CORRECCIONES.md" target="_blank" rel="noopener">Ver el caso completo ↗</a></p>
             </div>
           </div>
         </div>
@@ -904,6 +919,7 @@ $$;</pre>
             <div class="device-links">
               <a href="notitas/index.html" target="_blank" rel="noopener">Abrir en pantalla completa ↗</a>
               <a href="descargas/Notitas.apk" download>Descargar APK para Android (5,8 MB)</a>
+              <a href="https://github.com/diego-chaustre-data/notitas-app" target="_blank" rel="noopener">Ver el código en GitHub ↗</a>
             </div>
           </div>
         </div>
@@ -918,13 +934,14 @@ $$;</pre>
             <ul>
               <li>Consultas con <code>SELECT</code>, <code>WHERE</code>, <code>ORDER BY</code> y <code>LIMIT</code>.</li>
               <li>Agregaciones con <code>SUM</code>, <code>AVG</code>, <code>COUNT</code>, <code>GROUP BY</code> y <code>HAVING</code>.</li>
-              <li><code>INNER JOIN</code> entre dos y tres tablas combinado con agregaciones.</li>
+              <li><b>Lo que estoy practicando ahora:</b> <code>INNER JOIN</code> entre dos tablas, como este ejercicio guiado con la IA como tutor.</li>
             </ul>
 <pre class="mini-code"><span class="tk-k">SELECT</span> country.Name <span class="tk-k">AS</span> Pais, <span class="tk-f">COUNT</span>(city.ID) <span class="tk-k">AS</span> NumeroCiudades
 <span class="tk-k">FROM</span> country
 <span class="tk-k">INNER JOIN</span> city <span class="tk-k">ON</span> country.Code = city.CountryCode
 <span class="tk-k">GROUP BY</span> country.Name
 <span class="tk-k">ORDER BY</span> NumeroCiudades <span class="tk-k">DESC LIMIT</span> <span class="tk-n">15</span>;</pre>
+            <a class="btn line" href="https://github.com/diego-chaustre-data/practicas-sql" target="_blank" rel="noopener" style="margin-top:18px;padding:11px 20px;font-size:.85rem">Mi SQL a mano, con errores y correcciones <span class="arr">↗</span></a>
           </div>
           <div class="aside"><div class="lesson"><span class="label">Lección de datos</span><p>WHERE filtra filas; HAVING filtra grupos. Entender esa diferencia cambió mi forma de leer una consulta.</p></div></div>
         </div>
@@ -965,7 +982,7 @@ $$;</pre>
       <div class="step rv"><div class="n">2</div><h4>Diseñar con la IA</h4><p>Le pido propuestas de modelo y las cuestiono: ¿qué pasa si se cancela un viaje?, ¿quién puede ver este dato?</p></div>
       <div class="step rv"><div class="n">3</div><h4>Construir por fases</h4><p>El código se genera en pasos pequeños y ordenados: esquema, seguridad, funciones y, al final, los datos.</p></div>
       <div class="step rv"><div class="n">4</div><h4>Verificar</h4><p>Ejecuto, pruebo con datos reales y en dispositivos reales, leo los errores y los corrijo.</p></div>
-      <div class="step rv"><div class="n">5</div><h4>Auditar</h4><p>Reviso seguridad y privacidad antes de publicar. Lo que expone datos de clientes no sale.</p></div>
+      <div class="step rv"><div class="n">5</div><h4>Intentar romperlo</h4><p>No basta con leer el código: pruebo como usuario lo que no se debería poder hacer y dejo esas pruebas escritas. Lo que expone datos de clientes no sale.</p></div>
     </div>
     <div class="principle rv">
       <p>"La IA acelera el trabajo. La <em>responsabilidad</em> sobre los datos sigue siendo mía."</p>
@@ -981,7 +998,7 @@ $$;</pre>
       <span class="label">VI. · Carta de presentación</span>
       <h3>A la empresa que decida patrocinarme:</h3>
       <p>Llevo pocas semanas en el programa de Implementación y Gestión de Bases de Datos del SENA, pero no llego desde cero: antes de iniciarlo completé por iniciativa propia el curso certificado <em>Bases de datos: generalidades y sistemas de gestión</em>, para adelantar los fundamentos del programa. He manejado los pedidos y la contabilidad de mi propia tienda en línea, y he construido proyectos con bases de datos reales trabajando junto a la inteligencia artificial.</p>
-      <p>Quiero ser transparente con mi nivel: hoy escribo por mi cuenta consultas SQL fundamentales (filtros, agregaciones y uniones entre tablas). Lo más avanzado que ve en este portafolio (funciones, triggers y políticas de seguridad) lo construí dirigiendo a la IA, entendiendo qué hace cada parte y verificando que funcione. Esa es justamente mi propuesta: aprender las bases a fondo en el SENA mientras aporto a su equipo con lo que ya sé hacer.</p>
+      <p>Quiero ser transparente con mi nivel: hoy escribo por mi cuenta consultas SQL fundamentales (filtros, ordenamiento y agregaciones con <code>GROUP BY</code> y <code>HAVING</code>), y estoy practicando las uniones entre tablas (<code>JOIN</code>). Lo más avanzado que ve en este portafolio (funciones, triggers y políticas de seguridad) lo construí dirigiendo a la IA, entendiendo qué hace cada parte y verificando que funcione. Esa es justamente mi propuesta: aprender las bases a fondo en el SENA mientras aporto a su equipo con lo que ya sé hacer.</p>
       <p>Lo que puedo aportar mientras aprendo:</p>
       <ul class="offer">
         <li><span>i.</span><div><b>Apoyar la organización de la información.</b><p>Ordenar datos dispersos en Excel o correos y ayudar a llevarlos a una base de datos, con la guía de su equipo.</p></div></li>
@@ -1003,7 +1020,7 @@ $$;</pre>
       <div class="timeline">
         <div class="tl"><span class="d">2026 · Sep</span><div><b>Ingreso al SENA</b><p>Tecnólogo en Implementación y Gestión de Bases de Datos, en formación virtual.</p></div></div>
         <div class="tl"><span class="d">2026 · Jul–Ago</span><div><b>Curso certificado SENA</b><p>Bases de datos: generalidades y sistemas de gestión (40 horas), por iniciativa propia antes del tecnólogo.</p></div></div>
-        <div class="tl"><span class="d">2026 · Jun</span><div><b>Formación práctica en MySQL</b><p>Servidor local, consultas, agregaciones y JOIN.</p></div></div>
+        <div class="tl"><span class="d">2026 · Jun</span><div><b>Formación práctica en MySQL</b><p>Servidor local, consultas y agregaciones. Ahora practicando JOIN.</p></div></div>
         <div class="tl"><span class="d">2026 · Jun</span><div><b>Notitas en dispositivo real</b><p>Persistencia, borrado lógico y recordatorios.</p></div></div>
         <div class="tl"><span class="d">2026 · May</span><div><b>ALIS: de la idea al MVP</b><p>Investigación, base de datos en PostgreSQL, API y app móvil.</p></div></div>
         <div class="tl"><span class="d">2026</span><div><b>Velozi</b><p>Tienda en línea contraentrega, con ventas reales por publicidad en Meta.</p></div></div>
@@ -1014,7 +1031,7 @@ $$;</pre>
       <div class="stack">
         <div><span class="label">Bases de datos</span><span>PostgreSQL · MySQL 8 · Supabase · SQLite</span></div>
         <div><span class="label">Formación</span><span>Tecnólogo SENA virtual en curso · Curso certificado SENA en bases de datos (40 h)</span></div>
-        <div><span class="label">SQL · por mi cuenta</span><span>SELECT, WHERE, ORDER BY, LIMIT, agregaciones, GROUP BY, HAVING, INNER JOIN</span></div>
+        <div><span class="label">SQL · por mi cuenta</span><span>SELECT, WHERE, ORDER BY, LIMIT, agregaciones, GROUP BY, HAVING · practicando: INNER JOIN</span></div>
         <div><span class="label">SQL · con IA</span><span>Funciones, triggers, seguridad RLS e índices (en aprendizaje)</span></div>
         <div><span class="label">Backend</span><span>Node.js + TypeScript · Python (FastAPI, SQLAlchemy) · PHP</span></div>
         <div><span class="label">Móvil y web</span><span>Flutter · Kotlin · HTML, CSS y JavaScript</span></div>
@@ -1239,7 +1256,7 @@ ORDER BY tasa_pct DESC;` },
 FROM ratings r
 JOIN profiles p ON p.id = r.to_id
 JOIN drivers  d ON d.profile_id = p.id
-GROUP BY p.id
+GROUP BY p.id, p.full_name, d.tier
 HAVING COUNT(r.id) >= 5
 ORDER BY promedio DESC, calificaciones DESC
 LIMIT 5;` },
